@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divine – Fal & Kehanet</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dark: #8B6914;
+    --purple: #4A1E6E;
+    --purple-mid: #6B2D9E;
+    --purple-light: #9B59B6;
+    --black: #080808;
+    --black-deep: #030303;
+    --white: #F5EDD8;
+    --white-dim: rgba(245,237,216,0.7);
+  }
+
+  body {
+    font-family: 'Cormorant Garamond', serif;
+    background: var(--black-deep);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ── COSMIC BACKGROUND ── */
+  .bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  canvas#stars {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .nebula {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+  }
+  .nebula-1 { width: 600px; height: 600px; background: radial-gradient(circle, #6B2D9E, transparent 70%); top: -100px; left: -100px; }
+  .nebula-2 { width: 500px; height: 500px; background: radial-gradient(circle, #C9A84C, transparent 70%); top: 30%; right: -80px; }
+  .nebula-3 { width: 400px; height: 400px; background: radial-gradient(circle, #4A1E6E, transparent 70%); bottom: 10%; left: 20%; }
+
+  .crystal-ball-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 35% 35%, rgba(107,45,158,0.08), transparent 60%),
+                radial-gradient(ellipse at 65% 65%, rgba(201,168,76,0.05), transparent 60%);
+    border: 1px solid rgba(201,168,76,0.04);
+    opacity: 0.6;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+  }
+
+  /* ── DECORATIVE TOP LINE ── */
+  .top-ornament {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    opacity: 0.6;
+  }
+  .top-ornament .line { flex: 1; max-width: 120px; height: 1px; background: linear-gradient(to right, transparent, var(--gold)); }
+  .top-ornament .line.right { background: linear-gradient(to left, transparent, var(--gold)); }
+  .top-ornament .symbol { color: var(--gold); font-size: 20px; }
+
+  /* ── BRAND NAME ── */
+  .brand {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(52px, 10vw, 100px);
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-align: center;
+    background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 40%, var(--gold-light) 60%, var(--gold) 80%, var(--gold-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    text-shadow: none;
+    filter: drop-shadow(0 0 30px rgba(201,168,76,0.3));
+    animation: glow-pulse 4s ease-in-out infinite;
+    margin-bottom: 6px;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(201,168,76,0.2)); }
+    50% { filter: drop-shadow(0 0 45px rgba(201,168,76,0.5)); }
+  }
+
+  .brand-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(13px, 2vw, 17px);
+    letter-spacing: 0.35em;
+    color: rgba(201,168,76,0.6);
+    text-align: center;
+    margin-bottom: 60px;
+    text-transform: uppercase;
+  }
+
+  /* ── STAR DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 56px;
+    width: 100%;
+    max-width: 480px;
+  }
+  .divider-line { flex: 1; height: 1px; background: linear-gradient(to right, transparent, rgba(201,168,76,0.4), transparent); }
+  .divider-star { color: var(--gold); font-size: 14px; opacity: 0.7; }
+
+  /* ── ACCORDION CARDS ── */
+  .cards { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 16px; }
+
+  .card {
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 2px;
+    background: rgba(10,6,18,0.7);
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .card:hover { border-color: rgba(201,168,76,0.5); }
+  .card.open { border-color: rgba(201,168,76,0.55); }
+
+  .card-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    color: var(--white);
+    transition: background 0.2s;
+  }
+  .card-btn:hover { background: rgba(201,168,76,0.06); }
+
+  .card-btn-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .card.open .card-icon { border-color: var(--gold); background: rgba(201,168,76,0.1); }
+
+  .card-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(11px, 2.5vw, 14px);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-align: left;
+    color: var(--gold-light);
+  }
+
+  .card-chevron {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    opacity: 0.5;
+  }
+  .card.open .card-chevron { transform: rotate(180deg); opacity: 1; }
+
+  .card-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1);
+  }
+  .card.open .card-body { max-height: 400px; }
+
+  .card-inner {
+    padding: 0 28px 28px 28px;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .card-inner p {
+    font-size: clamp(15px, 2.2vw, 17px);
+    font-weight: 400;
+    line-height: 1.9;
+    color: rgba(245,237,216,0.92);
+    margin: 20px 0 24px;
+    font-style: normal;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── WHATSAPP BUTTON ── */
+  .wa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 28px;
+    border: 1px solid var(--gold);
+    background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
+    color: var(--gold-light);
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    border-radius: 1px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .wa-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.25), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .wa-btn:hover::before { opacity: 1; }
+  .wa-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(201,168,76,0.2); }
+  .wa-btn:active { transform: scale(0.98); }
+
+  .wa-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    fill: var(--gold);
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 64px;
+    text-align: center;
+    opacity: 0.3;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  /* ── MOON PHASE ORNAMENT ── */
+  .moon-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+    opacity: 0.35;
+  }
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND -->
+<div class="bg-canvas">
+  <canvas id="stars"></canvas>
+  <div class="nebula nebula-1"></div>
+  <div class="nebula nebula-2"></div>
+  <div class="nebula nebula-3"></div>
+  <div class="crystal-ball-bg"></div>
+</div>
+
+<!-- MAIN -->
+<div class="wrapper">
+
+  <div class="moon-row">
+    <span>🌑</span><span>🌒</span><span>🌓</span><span>🌔</span><span>🌕</span><span>🌖</span><span>🌗</span><span>🌘</span><span>🌑</span>
+  </div>
+
+  <div class="top-ornament">
+    <div class="line"></div>
+    <span class="symbol">✦</span>
+    <span class="symbol" style="font-size:14px">✧</span>
+    <span class="symbol">✦</span>
+    <div class="line right"></div>
+  </div>
+
+  <h1 class="brand">Divine</h1>
+  <p class="brand-tagline">Fal &amp; Kehanet</p>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span class="divider-star">✦</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ACCORDION CARDS -->
+  <div class="cards">
+
+    <!-- Card 1 -->
+    <div class="card" id="card-1">
+      <button class="card-btn" onclick="toggle(1)" aria-expanded="false">
+        <div class="card-btn-left">
+          <div class="card-icon">🪔</div>
+          <span class="card-title">Yüzyüze Tepsi Falı</span>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="none">
+          <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="card-body" id="body-1">
+        <div class="card-inner">
+          <p>
+            Her telve izinde gizlenen semboller; sevgi, servet ve kader üzerine derin kehanetler barındırır. Birebir gerçekleştirilen bu ritüelde bakırın toprağa bağlayıcı enerjisi, telvelerle buluşarak size özgü mesajları yüzeye çıkarır.
+          </p>
+          <a class="wa-btn" href="https://t.me/divine_saltatrix" target="_blank" rel="noopener">
+            <svg class="wa-icon" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.42l-2.948-.924c-.64-.203-.654-.64.136-.953l11.57-4.461c.537-.194 1.006.131.716.166z"/></svg>
+            Bilgi Al
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="card" id="card-2">
+      <button class="card-btn" onclick="toggle(2)" aria-expanded="false">
+        <div class="card-btn-left">
+          <div class="card-icon">☕</div>
+          <span class="card-title">Yüzyüze Kahve Falı</span>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="none">
+          <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="card-body" id="body-2">
+        <div class="card-inner">
+          <p>
+            Geleneksel Türk kahvesi fincanında bırakılan izler, ruhunuzun derin katmanlarından mesajlar taşır. Fincanı ters çevirip soğuması beklendikten sonra, birebir gerçekleştirilen bu ritüelde oluşan şekiller; aşk, kariyer, sağlık ve gizemli bağlantılar üzerine aydınlatıcı yorumlarla hayatınıza ışık tutar.
+          </p>
+          <a class="wa-btn" href="https://t.me/divine_saltatrix" target="_blank" rel="noopener">
+            <svg class="wa-icon" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.42l-2.948-.924c-.64-.203-.654-.64.136-.953l11.57-4.461c.537-.194 1.006.131.716.166z"/></svg>
+            Bilgi Al
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="card" id="card-3">
+      <button class="card-btn" onclick="toggle(3)" aria-expanded="false">
+        <div class="card-btn-left">
+          <div class="card-icon">✉️</div>
+          <span class="card-title">Kahve Falı</span>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="none">
+          <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="card-body" id="body-3">
+        <div class="card-inner">
+          <p>
+            Zaman ve mekân engelini aşan bir kehanet deneyimi. Fincanınızın fotoğrafını paylaşın; yorumlarınız özenle hazırlanarak size ulaştırılsın. Türk kahvesinin eşsiz izleri yoluyla kaderinizin fısıldadıklarını, nerede olursanız olun keşfedin.
+          </p>
+          <a class="wa-btn" href="https://t.me/divine_saltatrix" target="_blank" rel="noopener">
+            <svg class="wa-icon" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.088 14.42l-2.948-.924c-.64-.203-.654-.64.136-.953l11.57-4.461c.537-.194 1.006.131.716.166z"/></svg>
+            Bilgi Al
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /cards -->
+
+  <div class="footer">✦ &nbsp; Gizem kapıda bekliyor &nbsp; ✦</div>
+
+</div><!-- /wrapper -->
+
+<script>
+/* Stars */
+(function(){
+  const c = document.getElementById('stars');
+  const ctx = c.getContext('2d');
+  let stars = [];
+  function resize(){
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+  }
+  function init(){
+    stars = [];
+    for(let i=0;i<220;i++){
+      stars.push({
+        x: Math.random()*c.width,
+        y: Math.random()*c.height,
+        r: Math.random()*1.4+0.2,
+        a: Math.random(),
+        s: Math.random()*0.008+0.002,
+        d: Math.random()<0.5?1:-1
+      });
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(s=>{
+      s.a += s.s*s.d;
+      if(s.a>1||s.a<0) s.d*=-1;
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle = `rgba(201,168,76,${s.a*0.7})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  resize();
+  init();
+  draw();
+  window.addEventListener('resize',()=>{ resize(); init(); });
+})();
+
+/* Accordion */
+function toggle(id){
+  const card = document.getElementById('card-'+id);
+  const btn  = card.querySelector('.card-btn');
+  const isOpen = card.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('open'));
+  document.querySelectorAll('.card-btn').forEach(b=>b.setAttribute('aria-expanded','false'));
+  // Open clicked if it was closed
+  if(!isOpen){
+    card.classList.add('open');
+    btn.setAttribute('aria-expanded','true');
+  }
+}
+</script>
+</body>
+</html>
